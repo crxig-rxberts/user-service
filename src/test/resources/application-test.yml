@@ -1,0 +1,22 @@
+spring:
+  mail:
+    host: localhost
+    port: 1025
+    username: # blank for MailHog
+    password: # blank for MailHog
+    properties.mail.smtp:
+      auth: false
+      starttls.enable: false
+    default-encoding: utf-8
+    protocol: smtp
+
+dynamodb:
+  table:
+    envPostfix: -local
+
+aws:
+  region: eu-west-1
+  dynamodb:
+    endpoint: http://localhost:8000
+  profile: default
+

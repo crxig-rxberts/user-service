@@ -1,0 +1,9 @@
+dynamodb:
+  table:
+    envPostfix: -ci
+
+aws:
+  region: eu-west-1
+  dynamodb:
+    endpoint: https://dynamodb.eu-west-1.amazonaws.com
+  profile: default

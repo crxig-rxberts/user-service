@@ -1,0 +1,12 @@
+active_spring_profiles = "ci"
+env_name               = "nonprod-ci"
+health_endpoint        = "/management/health"
+image_name             = "This need to point to the repo in aws registry"
+image_version          = "See how rs do this"
+resource_cpu           = "2"
+resource_memory        = "128"
+service_count          = 0
+service_name           = "user-service"
+region                 = "eu-west-1"
+tfstate_env            = "nonprod-ci"
+tfstate_bucket         = "tfstate"

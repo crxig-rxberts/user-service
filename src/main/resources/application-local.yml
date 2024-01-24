@@ -1,0 +1,9 @@
+dynamodb:
+  table:
+    envPostfix: -local
+
+aws:
+  region: eu-west-1
+  dynamodb:
+    endpoint: http://localhost:8000
+  profile: default
