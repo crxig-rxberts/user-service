@@ -2,7 +2,6 @@ const winston = require('winston');
 const { format } = winston;
 const { combine, timestamp, printf, colorize, align } = format;
 
-// Custom log levels with colors
 const customLevels = {
   levels: {
     error: 0,
@@ -24,7 +23,6 @@ const customLevels = {
   }
 };
 
-// Custom format
 const customFormat = printf(({ level, message, timestamp, ...rest }) => {
   let logMessage = `${timestamp} [${level}]: ${message}`;
 
@@ -52,7 +50,6 @@ const logger = winston.createLogger({
   ]
 });
 
-// Add colors to Winston
 winston.addColors(customLevels.colors);
 
 module.exports = logger;
