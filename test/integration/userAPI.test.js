@@ -3,7 +3,7 @@ const express = require('express');
 const authRoutes = require('../../src/routes/authRoutes');
 const authService = require('../../src/services/authService');
 const errorHandler = require('../../src/middleware/errorHandler');
-const {UnauthorizedError} = require("../../src/middleware/errors");
+const {UnauthorizedError} = require('../../src/middleware/errors');
 
 jest.mock('../../src/services/authService');
 jest.mock('../../src/config/cognito', () => ({
@@ -164,9 +164,9 @@ describe('Auth API Integration Tests', () => {
       authService.verifyAccessToken.mockResolvedValue(mockPayload);
 
       const response = await request(app)
-          .get('/auth/verify-token')
-          .set('Authorization', 'Bearer mock-access-token')
-          .expect(200);
+        .get('/auth/verify-token')
+        .set('Authorization', 'Bearer mock-access-token')
+        .expect(200);
 
       expect(response.body.success).toBe(true);
       expect(response.body.message).toBe('Access token is valid');
@@ -178,9 +178,9 @@ describe('Auth API Integration Tests', () => {
       authService.verifyAccessToken.mockRejectedValue(new UnauthorizedError('Invalid access token'));
 
       const response = await request(app)
-          .get('/auth/verify-token')
-          .set('Authorization', 'Bearer invalid-token')
-          .expect(401);
+        .get('/auth/verify-token')
+        .set('Authorization', 'Bearer invalid-token')
+        .expect(401);
 
       expect(response.body.success).toBe(false);
       expect(response.body.message).toBe('Invalid access token');

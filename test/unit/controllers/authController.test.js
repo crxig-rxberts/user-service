@@ -2,6 +2,16 @@ const authController = require('../../../src/controllers/authController');
 const authService = require('../../../src/services/authService');
 const { formatResponse } = require('../../../src/utils/formatResponse');
 
+jest.mock('../../../src/config/cognito', () => ({
+  cognitoIdentityServiceProvider: {},
+  userPoolId: 'mock-user-pool-id',
+  clientId: 'mock-client-id',
+  clientSecret: 'mock-client-secret',
+  jwtVerifier: {
+    verify: jest.fn(),
+  },
+}));
+
 jest.mock('../../../src/services/authService');
 jest.mock('../../../src/utils/formatResponse');
 

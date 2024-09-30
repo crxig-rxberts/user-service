@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const { CognitoJwtVerifier } = require("aws-jwt-verify");
+const { CognitoJwtVerifier } = require('aws-jwt-verify');
 
 AWS.config.update({
   region: process.env.AWS_REGION,
@@ -11,7 +11,7 @@ const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
 
 const jwtVerifier = CognitoJwtVerifier.create({
   userPoolId: process.env.COGNITO_USER_POOL_ID,
-  tokenUse: "access",
+  tokenUse: 'access',
   clientId: process.env.COGNITO_CLIENT_ID,
 });
 

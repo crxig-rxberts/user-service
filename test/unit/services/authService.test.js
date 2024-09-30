@@ -296,7 +296,7 @@ describe('AuthService', () => {
       jwtVerifier.verify.mockRejectedValue({ name: 'TokenExpiredError' });
 
       await expect(AuthService.verifyAccessToken('expiredToken'))
-          .rejects.toThrow(UnauthorizedError);
+        .rejects.toThrow(UnauthorizedError);
       expect(jwtVerifier.verify).toHaveBeenCalledWith('expiredToken');
     });
 
@@ -304,7 +304,7 @@ describe('AuthService', () => {
       jwtVerifier.verify.mockRejectedValue({ name: 'JsonWebTokenError' });
 
       await expect(AuthService.verifyAccessToken('invalidToken'))
-          .rejects.toThrow(UnauthorizedError);
+        .rejects.toThrow(UnauthorizedError);
       expect(jwtVerifier.verify).toHaveBeenCalledWith('invalidToken');
     });
 
@@ -312,7 +312,7 @@ describe('AuthService', () => {
       jwtVerifier.verify.mockRejectedValue(new Error('Unknown error'));
 
       await expect(AuthService.verifyAccessToken('validAccessToken'))
-          .rejects.toThrow(AuthError);
+        .rejects.toThrow(AuthError);
       expect(jwtVerifier.verify).toHaveBeenCalledWith('validAccessToken');
     });
   });
