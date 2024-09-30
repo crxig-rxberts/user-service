@@ -1,4 +1,4 @@
-const { cognitoIdentityServiceProvider, clientId, clientSecret } = require('../config/cognito');
+const { cognitoIdentityServiceProvider, clientId, clientSecret, jwtVerifier} = require('../config/cognito');
 const crypto = require('crypto');
 const logger = require('../utils/logger');
 const {
@@ -152,17 +152,16 @@ class AuthService {
   }
 
   async verifyAccessToken(accessToken) {
-    const params = {
-      AccessToken: accessToken
-    };
-
     try {
-      await cognitoIdentityServiceProvider.getUser(params).promise();
+      const payload = await jwtVerifier.verify(accessToken);
       logger.info('Access token verified successfully');
-      return true;
+      return payload;
     } catch (error) {
-      logger.error('Error verifying access token');
-      if (error.code === 'NotAuthorizedException') {
+      logger.error('Error verifying access token', { error });
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedError('Access token has expired');
+      }
+      if (error.name === 'JsonWebTokenError') {
         throw new UnauthorizedError('Invalid access token');
       }
       throw new AuthError(error.message, 500);

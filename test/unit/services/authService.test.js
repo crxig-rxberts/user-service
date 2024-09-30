@@ -1,5 +1,5 @@
 const AuthService = require('../../../src/services/authService');
-const { cognitoIdentityServiceProvider } = require('../../../src/config/cognito');
+const { cognitoIdentityServiceProvider, jwtVerifier  } = require('../../../src/config/cognito');
 const {
   ValidationError,
   UnauthorizedError,
@@ -17,6 +17,9 @@ jest.mock('../../../src/config/cognito', () => ({
     initiateAuth: jest.fn(),
     forgotPassword: jest.fn(),
     getUser: jest.fn(),
+  },
+  jwtVerifier: {
+    verify: jest.fn(),
   },
   userPoolId: 'mock-user-pool-id',
   clientId: 'mock-client-id',
@@ -277,31 +280,40 @@ describe('AuthService', () => {
         .rejects.toThrow(AuthError);
     });
   });
+
   describe('verifyAccessToken', () => {
     it('should verify access token successfully', async () => {
-      const mockGetUser = jest.fn().mockResolvedValue({});
-      cognitoIdentityServiceProvider.getUser.mockReturnValue({ promise: mockGetUser });
+      const mockPayload = { sub: 'user123', username: 'testuser' };
+      jwtVerifier.verify.mockResolvedValue(mockPayload);
 
       const result = await AuthService.verifyAccessToken('validAccessToken');
 
-      expect(result).toBe(true);
-      expect(mockGetUser).toHaveBeenCalled();
+      expect(result).toEqual(mockPayload);
+      expect(jwtVerifier.verify).toHaveBeenCalledWith('validAccessToken');
     });
 
-    it('should throw UnauthorizedError for invalid access token', async () => {
-      const mockGetUser = jest.fn().mockRejectedValue({ code: 'NotAuthorizedException' });
-      cognitoIdentityServiceProvider.getUser.mockReturnValue({ promise: mockGetUser });
+    it('should throw UnauthorizedError for expired token', async () => {
+      jwtVerifier.verify.mockRejectedValue({ name: 'TokenExpiredError' });
 
-      await expect(AuthService.verifyAccessToken('invalidAccessToken'))
-        .rejects.toThrow(UnauthorizedError);
+      await expect(AuthService.verifyAccessToken('expiredToken'))
+          .rejects.toThrow(UnauthorizedError);
+      expect(jwtVerifier.verify).toHaveBeenCalledWith('expiredToken');
+    });
+
+    it('should throw UnauthorizedError for invalid token', async () => {
+      jwtVerifier.verify.mockRejectedValue({ name: 'JsonWebTokenError' });
+
+      await expect(AuthService.verifyAccessToken('invalidToken'))
+          .rejects.toThrow(UnauthorizedError);
+      expect(jwtVerifier.verify).toHaveBeenCalledWith('invalidToken');
     });
 
     it('should throw AuthError for other errors', async () => {
-      const mockGetUser = jest.fn().mockRejectedValue(new Error('Unknown error'));
-      cognitoIdentityServiceProvider.getUser.mockReturnValue({ promise: mockGetUser });
+      jwtVerifier.verify.mockRejectedValue(new Error('Unknown error'));
 
       await expect(AuthService.verifyAccessToken('validAccessToken'))
-        .rejects.toThrow(AuthError);
+          .rejects.toThrow(AuthError);
+      expect(jwtVerifier.verify).toHaveBeenCalledWith('validAccessToken');
     });
   });
 

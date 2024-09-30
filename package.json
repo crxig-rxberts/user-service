@@ -16,6 +16,7 @@
   },
   "private": true,
   "dependencies": {
+    "aws-jwt-verify": "^4.0.1",
     "aws-sdk": "^2.1691.0",
     "cors": "^2.8.5",
     "express": "^4.21.0",

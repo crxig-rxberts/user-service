@@ -55,8 +55,8 @@ class AuthController {
   async verifyToken(req, res, next) {
     try {
       const accessToken = req.headers.authorization.split(' ')[1];
-      await authService.verifyAccessToken(accessToken);
-      res.json(formatResponse('Access token is valid'));
+      const payload = await authService.verifyAccessToken(accessToken);
+      res.json(formatResponse('Access token is valid', payload));
     } catch (error) {
       next(error);
     }

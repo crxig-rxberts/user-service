@@ -3,9 +3,29 @@ const express = require('express');
 const authRoutes = require('../../src/routes/authRoutes');
 const authService = require('../../src/services/authService');
 const errorHandler = require('../../src/middleware/errorHandler');
+const {UnauthorizedError} = require("../../src/middleware/errors");
 
 jest.mock('../../src/services/authService');
-jest.mock('../../src/config/cognito');
+jest.mock('../../src/config/cognito', () => ({
+  cognitoIdentityServiceProvider: {
+    signUp: jest.fn(),
+    confirmSignUp: jest.fn(),
+    initiateAuth: jest.fn(),
+    forgotPassword: jest.fn(),
+    getUser: jest.fn(),
+  },
+  jwtVerifier: {
+    verify: jest.fn(),
+  },
+  CognitoJwtVerifier: {
+    create: jest.fn().mockReturnValue({
+      verify: jest.fn(),
+    }),
+  },
+  userPoolId: 'mock-user-pool-id',
+  clientId: 'mock-client-id',
+  clientSecret: 'mock-client-secret',
+}));
 jest.mock('../../src/utils/logger');
 
 const app = express();
@@ -140,16 +160,30 @@ describe('Auth API Integration Tests', () => {
 
   describe('GET /auth/verify-token', () => {
     it('should verify the token', async () => {
-      authService.verifyAccessToken.mockResolvedValue(true);
+      const mockPayload = { sub: 'user123', username: 'testuser' };
+      authService.verifyAccessToken.mockResolvedValue(mockPayload);
 
       const response = await request(app)
-        .get('/auth/verify-token')
-        .set('Authorization', 'Bearer mock-access-token')
-        .expect(200);
+          .get('/auth/verify-token')
+          .set('Authorization', 'Bearer mock-access-token')
+          .expect(200);
 
       expect(response.body.success).toBe(true);
       expect(response.body.message).toBe('Access token is valid');
+      expect(response.body.data).toEqual(mockPayload);
       expect(authService.verifyAccessToken).toHaveBeenCalledWith('mock-access-token');
+    });
+
+    it('should handle invalid token', async () => {
+      authService.verifyAccessToken.mockRejectedValue(new UnauthorizedError('Invalid access token'));
+
+      const response = await request(app)
+          .get('/auth/verify-token')
+          .set('Authorization', 'Bearer invalid-token')
+          .expect(401);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe('Invalid access token');
     });
   });
 });
